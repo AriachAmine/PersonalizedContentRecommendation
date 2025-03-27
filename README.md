@@ -6,11 +6,12 @@ A content-based recommendation system that suggests articles to users based on t
 
 This project demonstrates how to build a personalized content recommendation system using content-based filtering techniques. The system analyzes article keywords using TF-IDF (Term Frequency-Inverse Document Frequency) vectorization to create a profile for each user based on their reading history. It then recommends new articles that are semantically similar to the ones they've previously interacted with.
 
-The project includes data generation, model training, and a RESTful API endpoint to serve recommendations in real-time.
+The project includes data generation (with optional LLM integration), model training, and a RESTful API endpoint to serve recommendations in real-time.
 
 ## Features
 
 - **Synthetic Data Generation**: Creates realistic article and user interaction datasets
+  - **Gemini API Integration**: Generate more realistic article titles and keywords using Google's Gemini LLM
 - **Content-Based Filtering**: Recommends articles based on content similarity using TF-IDF
 - **User Profiling**: Builds user profiles based on past article interactions
 - **REST API Endpoint**: Serves personalized recommendations via a simple Flask API
@@ -26,6 +27,7 @@ The project includes data generation, model training, and a RESTful API endpoint
 - **joblib**: Model persistence
 - **Faker**: Generating synthetic data
 - **Flask**: Web API framework
+- **Google Generative AI**: Integration with Gemini LLM for realistic content generation
 
 ## Setup & Installation
 
@@ -46,6 +48,23 @@ The project includes data generation, model training, and a RESTful API endpoint
    pip install -r requirements.txt
    ```
 
+4. (Optional) Set up Gemini API for enhanced data generation:
+   - Get an API key from [Google AI Studio](https://ai.google.dev/)
+   - Create a `.env` file in the project root:
+     ```
+     # .env file
+     GEMINI_API_KEY=your_api_key_here
+     ```
+   - Alternatively, you can rename the provided `.env.example` file:
+     ```bash
+     # On Windows
+     copy .env.example .env
+     
+     # On Linux/Mac
+     cp .env.example .env
+     ```
+   - Then edit the `.env` file and replace "your_api_key_here" with your actual API key
+
 ## Data Generation
 
 Generate synthetic article and user interaction data:
@@ -57,6 +76,8 @@ python generate_data.py
 This will create:
 - `articles.csv`: 200 articles with titles, categories, and keywords
 - `user_interactions.csv`: 1000 user interactions (views/clicks) with timestamps
+
+If you've set up the Gemini API key, the script will use the LLM to generate more realistic article titles and keywords. Otherwise, it will fall back to using Faker to generate synthetic data.
 
 ## Model Training
 
