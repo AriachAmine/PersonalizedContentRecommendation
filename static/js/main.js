@@ -1,19 +1,19 @@
 document.addEventListener('DOMContentLoaded', function () {
     // Get DOM elements
-    const userIdInput = document.getElementById('user-id');
+    const userInterestsInput = document.getElementById('user-interests');
+    const categoryCheckboxes = document.querySelectorAll('input[name="category"]');
     const getRecommendationsButton = document.getElementById('get-recommendations');
     const loadingElement = document.getElementById('loading');
     const errorElement = document.getElementById('error-message');
     const recommendationsElement = document.getElementById('recommendations');
     const noRecommendationsElement = document.getElementById('no-recommendations');
-    const resultUserIdElement = document.getElementById('result-user-id');
     const recommendationsList = document.getElementById('recommendations-list');
 
     // Add event listener to button
     getRecommendationsButton.addEventListener('click', getRecommendations);
 
     // Also allow pressing Enter in the input field
-    userIdInput.addEventListener('keyup', function (event) {
+    userInterestsInput.addEventListener('keyup', function (event) {
         if (event.key === 'Enter') {
             getRecommendations();
         }
@@ -21,11 +21,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Function to get recommendations from API
     function getRecommendations() {
-        const userId = userIdInput.value.trim();
+        const userInterests = userInterestsInput.value.trim();
+
+        // Get selected categories
+        const selectedCategories = Array.from(categoryCheckboxes)
+            .filter(checkbox => checkbox.checked)
+            .map(checkbox => checkbox.value);
 
         // Validate input
-        if (!userId || isNaN(userId) || userId < 1) {
-            showError("Please enter a valid user ID");
+        if (!userInterests) {
+            showError("Please enter some interests or topics");
+            return;
+        }
+
+        if (selectedCategories.length === 0) {
+            showError("Please select at least one category");
             return;
         }
 
@@ -33,8 +43,20 @@ document.addEventListener('DOMContentLoaded', function () {
         hideAllElements();
         showElement(loadingElement);
 
+        // Prepare data for POST request
+        const requestData = {
+            interests: userInterests,
+            categories: selectedCategories
+        };
+
         // Make API request
-        fetch(`/recommend/${userId}`)
+        fetch('/recommend-by-interests', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData)
+        })
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
@@ -60,21 +82,6 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        resultUserIdElement.textContent = data.user_id;
-
-        // Check if this is a new user with just a list of article IDs
-        if (data.message && data.message.includes('New user')) {
-            // Show message for new users
-            recommendationsList.innerHTML = `
-                <div class="article-card">
-                    <p>${data.message}</p>
-                    <p>Recommended popular articles: ${data.recommendations.join(', ')}</p>
-                </div>
-            `;
-            showElement(recommendationsElement);
-            return;
-        }
-
         // Handle regular recommendations
         if (!data.recommendations || data.recommendations.length === 0) {
             showElement(noRecommendationsElement);
@@ -93,8 +100,10 @@ document.addEventListener('DOMContentLoaded', function () {
             articleCard.innerHTML = `
                 <div class="article-category">${article.category}</div>
                 <h3 class="article-title">${article.title}</h3>
-                <p class="article-id">Article ID: ${article.article_id}</p>
-                <p class="article-similarity">Similarity: ${similarityPercentage}%</p>
+                <p class="article-keywords">Keywords: ${article.keywords}</p>
+                <p class="article-content">${article.snippet || 'No preview available'}</p>
+                <p class="article-similarity">Relevance: ${similarityPercentage}%</p>
+                ${article.url ? `<a href="${article.url}" target="_blank" class="article-link">Read full article</a>` : ''}
             `;
 
             recommendationsList.appendChild(articleCard);

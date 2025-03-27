@@ -1,23 +1,23 @@
 # Personalized Content Recommendation Agent
 
-A content-based recommendation system that suggests articles to users based on their previous interactions and content similarity.
+A content-based recommendation system that suggests real articles to users based on their interests and preferences.
 
 ## Description
 
-This project demonstrates how to build a personalized content recommendation system using content-based filtering techniques. The system analyzes article keywords using TF-IDF (Term Frequency-Inverse Document Frequency) vectorization to create a profile for each user based on their reading history. It then recommends new articles that are semantically similar to the ones they've previously interacted with.
+This project demonstrates how to build a personalized content recommendation system using content-based filtering techniques. The system analyzes user interests and finds relevant articles from real news sources using APIs, with a fallback to the local dataset when needed.
 
-The project includes data generation (with optional LLM integration), model training, and a RESTful API endpoint to serve recommendations in real-time.
+The project includes real-time article fetching, text analysis, and a RESTful API endpoint to serve recommendations based on user input.
 
 ## Features
 
-- **Synthetic Data Generation**: Creates realistic article and user interaction datasets
-  - **Gemini API Integration**: Generate more realistic article titles and keywords using Google's Gemini LLM
+- **Real-World Article Recommendations**: Connect to news APIs to fetch current articles
+- **User Interest Processing**: Generate recommendations based on user-provided interests
+- **Category Filtering**: Filter recommendations by content categories
 - **Content-Based Filtering**: Recommends articles based on content similarity using TF-IDF
-- **User Profiling**: Builds user profiles based on past article interactions
-- **REST API Endpoint**: Serves personalized recommendations via a simple Flask API
-- **Web Interface**: User-friendly interface to interact with the recommendation system
-- **Fallback Recommendations**: Provides popular article recommendations for new users
-- **Detailed Recommendations**: Returns article metadata along with similarity scores
+- **API Integration**: Connect to NewsAPI, Guardian API, and more
+- **Web Interface**: User-friendly interface to enter interests and view recommendations
+- **Fallback Mechanisms**: Use local dataset when API limits are reached or unavailable
+- **Detailed Recommendations**: Returns article metadata, snippets, and links to full content
 
 ## Technology Stack
 
@@ -25,11 +25,9 @@ The project includes data generation (with optional LLM integration), model trai
 - **pandas**: Data manipulation and analysis
 - **NumPy**: Numerical computing
 - **scikit-learn**: Machine learning algorithms (TF-IDF, cosine similarity)
-- **joblib**: Model persistence
-- **Faker**: Generating synthetic data
 - **Flask**: Web API framework
+- **Requests**: HTTP library for API calls
 - **HTML/CSS/JavaScript**: Frontend web interface
-- **Google Generative AI**: Integration with Gemini LLM for realistic content generation
 
 ## Setup & Installation
 
@@ -50,12 +48,17 @@ The project includes data generation (with optional LLM integration), model trai
    pip install -r requirements.txt
    ```
 
-4. (Optional) Set up Gemini API for enhanced data generation:
-   - Get an API key from [Google AI Studio](https://ai.google.dev/)
+4. Set up API keys for news sources:
+   - Get API keys from:
+     - [NewsAPI](https://newsapi.org/)
+     - [Guardian API](https://open-platform.theguardian.com/)
+     - [New York Times API](https://developer.nytimes.com/)
    - Create a `.env` file in the project root:
      ```
      # .env file
-     GEMINI_API_KEY=your_api_key_here
+     NEWS_API_KEY=your_newsapi_key_here
+     GUARDIAN_API_KEY=your_guardian_api_key_here
+     NY_TIMES_API_KEY=your_nytimes_api_key_here
      ```
    - Alternatively, you can rename the provided `.env.example` file:
      ```bash
@@ -65,37 +68,11 @@ The project includes data generation (with optional LLM integration), model trai
      # On Linux/Mac
      cp .env.example .env
      ```
-   - Then edit the `.env` file and replace "your_api_key_here" with your actual API key
+   - Then edit the `.env` file and replace "your_api_key_here" with your actual API keys
 
-## Data Generation
+## Running the Application
 
-Generate synthetic article and user interaction data:
-
-```bash
-python generate_data.py
-```
-
-This will create:
-- `articles.csv`: 200 articles with titles, categories, and keywords
-- `user_interactions.csv`: 1000 user interactions (views/clicks) with timestamps
-
-If you've set up the Gemini API key, the script will use the LLM to generate more realistic article titles and keywords. Otherwise, it will fall back to using Faker to generate synthetic data.
-
-## Model Training
-
-Train the TF-IDF vectorizer and create the content feature matrix:
-
-```bash
-python train_model.py
-```
-
-This will create:
-- `tfidf_vectorizer.joblib`: The fitted TF-IDF vectorizer
-- `tfidf_matrix.joblib`: The TF-IDF feature matrix for all articles
-
-## Running the Agent
-
-Start the recommendation API server:
+Start the recommendation system:
 
 ```bash
 python app.py
@@ -105,26 +82,30 @@ The server will run on http://127.0.0.1:5000/ by default.
 
 ## Using the Web Interface
 
-The application now includes a user-friendly web interface to interact with the recommendation system:
+The application includes a user-friendly web interface:
 
 1. Open your browser and navigate to http://127.0.0.1:5000/
-2. Enter a user ID in the input field (1-50 for the sample dataset)
-3. Click "Get Recommendations" or press Enter
-4. View the personalized recommendations displayed in an easy-to-read card format
+2. Enter your interests in the input field (e.g., "climate change", "artificial intelligence")
+3. Select categories you're interested in
+4. Click "Get Recommendations" or press Enter
+5. View the personalized recommendations displayed in an easy-to-read card format
 
 The interface shows:
 - Article title and category
-- Article ID for reference
-- Similarity score as a percentage showing how closely the recommendation matches the user's interests
-
-For new users with no previous interactions, the system automatically provides popular articles as recommendations.
+- Keywords related to the article
+- A snippet or preview of the article content
+- Relevance score showing how closely the recommendation matches your interests
+- Link to read the full article
 
 ## API Usage Example
 
-### Request recommendations for a specific user
+### Request recommendations based on interests
 
+Using curl:
 ```bash
-curl http://127.0.0.1:5000/recommend/15
+curl -X POST http://127.0.0.1:5000/recommend-by-interests \
+     -H "Content-Type: application/json" \
+     -d '{"interests": "climate change renewable energy", "categories": ["Technology", "Science"]}'
 ```
 
 Or using Python's requests library:
@@ -133,7 +114,17 @@ Or using Python's requests library:
 import requests
 import json
 
-response = requests.get('http://127.0.0.1:5000/recommend/15')
+data = {
+    "interests": "climate change renewable energy",
+    "categories": ["Technology", "Science"]
+}
+
+response = requests.post(
+    'http://127.0.0.1:5000/recommend-by-interests',
+    headers={'Content-Type': 'application/json'},
+    data=json.dumps(data)
+)
+
 recommendations = json.loads(response.text)
 print(json.dumps(recommendations, indent=2))
 ```
@@ -142,48 +133,38 @@ print(json.dumps(recommendations, indent=2))
 
 ```json
 {
-  "user_id": 15,
   "recommendations": [
     {
-      "article_id": 142,
-      "title": "Why Solid Matters in Today's Line World",
+      "article_id": 1,
+      "title": "New Solar Panel Technology Breaks Efficiency Records",
       "category": "Technology",
-      "similarity_score": 0.5872
+      "keywords": "solar,energy,efficiency,renewable,technology",
+      "url": "https://example.com/article/solar-panel-technology",
+      "snippet": "Researchers have developed a new type of solar panel that converts 35% of sunlight into electricity, shattering previous records.",
+      "published_date": "2023-06-15T14:30:00Z",
+      "similarity_score": 0.85
     },
     {
-      "article_id": 87,
-      "title": "The Future of Series in Business",
-      "category": "Business",
-      "similarity_score": 0.5103
-    },
-    {
-      "article_id": 29,
-      "title": "How Isabella Sanchez Revolutionized Profit",
+      "article_id": 2,
+      "title": "Climate Scientists Warn of Accelerating Polar Ice Melt",
       "category": "Science",
-      "similarity_score": 0.4921
-    },
-    {
-      "article_id": 195,
-      "title": "7 Ways to Wait Your Law",
-      "category": "Lifestyle",
-      "similarity_score": 0.4751
-    },
-    {
-      "article_id": 112,
-      "title": "15 Ways to Run Your Card",
-      "category": "Sports",
-      "similarity_score": 0.4603
+      "keywords": "climate,change,polar,ice,scientists",
+      "url": "https://example.com/article/polar-ice-melt",
+      "snippet": "New research indicates that polar ice caps are melting faster than previous models predicted, raising concerns about sea level rise.",
+      "published_date": "2023-06-10T09:15:00Z",
+      "similarity_score": 0.78
     }
   ]
 }
 ```
 
-For a new user with no previous interactions, the system will recommend popular articles:
+## Offline Mode
 
-```json
-{
-  "user_id": 999,
-  "recommendations": [45, 23, 67, 12, 89],
-  "message": "New user. Recommending popular articles."
-}
+If no API keys are provided or API rate limits are reached, the system will automatically fall back to using the local dataset (if available). You can generate a synthetic local dataset using:
+
+```bash
+python generate_data.py
+python train_model.py
 ```
+
+This creates a dataset to use when API services are unavailable.

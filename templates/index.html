@@ -13,14 +13,27 @@
     <div class="container">
         <header>
             <h1>Personalized Content Recommendation</h1>
-            <p>Discover articles based on your reading history and interests</p>
+            <p>Discover articles based on your interests and preferences</p>
         </header>
 
         <section class="search-section">
             <div class="search-container">
                 <h2>Find Recommendations</h2>
                 <div class="input-group">
-                    <input type="number" id="user-id" placeholder="Enter User ID (1-50)" min="1" max="50">
+                    <input type="text" id="user-interests"
+                        placeholder="Enter interests (e.g., AI, climate change, sports)">
+                </div>
+                <div class="category-filter">
+                    <p>Filter by category:</p>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" name="category" value="Technology" checked> Technology</label>
+                        <label><input type="checkbox" name="category" value="Business" checked> Business</label>
+                        <label><input type="checkbox" name="category" value="Science" checked> Science</label>
+                        <label><input type="checkbox" name="category" value="Lifestyle" checked> Lifestyle</label>
+                        <label><input type="checkbox" name="category" value="Sports" checked> Sports</label>
+                    </div>
+                </div>
+                <div class="input-group">
                     <button id="get-recommendations">Get Recommendations</button>
                 </div>
             </div>
@@ -37,14 +50,14 @@
             </div>
 
             <div id="recommendations" class="hidden">
-                <h2>Recommended Articles for User <span id="result-user-id"></span></h2>
+                <h2>Recommended Articles Based on Your Interests</h2>
                 <div id="recommendations-list" class="recommendations-grid">
                     <!-- Recommendations will be inserted here -->
                 </div>
             </div>
 
             <div id="no-recommendations" class="hidden">
-                <p>No recommendations found for this user.</p>
+                <p>No recommendations found based on your interests. Try different keywords or categories.</p>
             </div>
         </section>
 
