@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Recommendation System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Personalized Content Recommendation</h1>
+            <p>Discover articles based on your reading history and interests</p>
+        </header>
+
+        <section class="search-section">
+            <div class="search-container">
+                <h2>Find Recommendations</h2>
+                <div class="input-group">
+                    <input type="number" id="user-id" placeholder="Enter User ID (1-50)" min="1" max="50">
+                    <button id="get-recommendations">Get Recommendations</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="results-section" id="results-container">
+            <div id="loading" class="hidden">
+                <div class="spinner"></div>
+                <p>Loading recommendations...</p>
+            </div>
+
+            <div id="error-message" class="hidden">
+                <p>Error loading recommendations. Please try again.</p>
+            </div>
+
+            <div id="recommendations" class="hidden">
+                <h2>Recommended Articles for User <span id="result-user-id"></span></h2>
+                <div id="recommendations-list" class="recommendations-grid">
+                    <!-- Recommendations will be inserted here -->
+                </div>
+            </div>
+
+            <div id="no-recommendations" class="hidden">
+                <p>No recommendations found for this user.</p>
+            </div>
+        </section>
+
+        <footer>
+            <p>Personalized Content Recommendation System | <a
+                    href="https://github.com/AriachAmine/PersonalizedContentRecommendation" target="_blank">GitHub
+                    Repository</a></p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+
+</html>

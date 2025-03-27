@@ -15,6 +15,7 @@ The project includes data generation (with optional LLM integration), model trai
 - **Content-Based Filtering**: Recommends articles based on content similarity using TF-IDF
 - **User Profiling**: Builds user profiles based on past article interactions
 - **REST API Endpoint**: Serves personalized recommendations via a simple Flask API
+- **Web Interface**: User-friendly interface to interact with the recommendation system
 - **Fallback Recommendations**: Provides popular article recommendations for new users
 - **Detailed Recommendations**: Returns article metadata along with similarity scores
 
@@ -27,6 +28,7 @@ The project includes data generation (with optional LLM integration), model trai
 - **joblib**: Model persistence
 - **Faker**: Generating synthetic data
 - **Flask**: Web API framework
+- **HTML/CSS/JavaScript**: Frontend web interface
 - **Google Generative AI**: Integration with Gemini LLM for realistic content generation
 
 ## Setup & Installation
@@ -101,7 +103,23 @@ python app.py
 
 The server will run on http://127.0.0.1:5000/ by default.
 
-## Usage Example
+## Using the Web Interface
+
+The application now includes a user-friendly web interface to interact with the recommendation system:
+
+1. Open your browser and navigate to http://127.0.0.1:5000/
+2. Enter a user ID in the input field (1-50 for the sample dataset)
+3. Click "Get Recommendations" or press Enter
+4. View the personalized recommendations displayed in an easy-to-read card format
+
+The interface shows:
+- Article title and category
+- Article ID for reference
+- Similarity score as a percentage showing how closely the recommendation matches the user's interests
+
+For new users with no previous interactions, the system automatically provides popular articles as recommendations.
+
+## API Usage Example
 
 ### Request recommendations for a specific user
 

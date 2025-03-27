@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template
 import pandas as pd
 import numpy as np
 import joblib
@@ -40,6 +40,11 @@ def load_data():
     except Exception as e:
         print(f"Error loading data: {e}")
         return False
+
+@app.route('/')
+def index():
+    """Serve the main web interface"""
+    return render_template('index.html')
 
 @app.route('/recommend/<int:user_id>')
 def recommend(user_id):
